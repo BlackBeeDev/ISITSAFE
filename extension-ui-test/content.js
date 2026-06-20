@@ -145,7 +145,7 @@
     wrapper.innerHTML = `
       <span class="icon" aria-hidden="true">&#128123;</span>
       <div class="text">
-        <p class="headline">GhostLink: ${statusLabel} (${score}/100)</p>
+        <p class="headline">ISITSAFE: ${statusLabel} (${score}/100)</p>
         <p class="reason">${reason}</p>
       </div>
       <div class="actions">

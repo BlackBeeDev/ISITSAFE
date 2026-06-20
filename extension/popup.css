@@ -169,6 +169,12 @@ body {
   outline-offset: 1px;
 }
 
+.settings-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .secondary-btn {
   font-family: inherit;
   font-size: 12px;
@@ -183,6 +189,22 @@ body {
 
 .secondary-btn:hover {
   background-color: rgba(108, 92, 231, 0.2);
+}
+
+.reset-link {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b6b6b;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.reset-link:hover {
+  color: var(--accent);
 }
 
 .save-status {

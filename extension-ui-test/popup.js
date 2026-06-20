@@ -13,6 +13,7 @@ const settingsPanel = document.getElementById("settings-panel");
 const settingsChevron = document.getElementById("settings-chevron");
 const apiBaseInput = document.getElementById("api-base-input");
 const saveApiBaseBtn = document.getElementById("save-api-base");
+const resetApiBaseBtn = document.getElementById("reset-api-base");
 const saveStatusEl = document.getElementById("save-status");
 
 function statusLabel(status) {
@@ -118,6 +119,11 @@ function saveApiBase() {
   });
 }
 
+function resetApiBase() {
+  apiBaseInput.value = DEFAULT_API_BASE;
+  saveApiBase();
+}
+
 function toggleSettings() {
   const isOpen = !settingsPanel.hidden;
   settingsPanel.hidden = isOpen;
@@ -127,6 +133,7 @@ function toggleSettings() {
 rescanBtn.addEventListener("click", requestRescan);
 settingsToggle.addEventListener("click", toggleSettings);
 saveApiBaseBtn.addEventListener("click", saveApiBase);
+resetApiBaseBtn.addEventListener("click", resetApiBase);
 
 document.addEventListener("DOMContentLoaded", () => {
   requestLastResult();

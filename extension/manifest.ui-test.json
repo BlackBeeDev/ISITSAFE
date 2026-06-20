@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "GhostLink (UI test build)",
+  "name": "ISITSAFE (UI test build)",
   "version": "0.0.1",
   "description": "Isolated UI test build - popup and content script only, no background worker. Not the merged extension.",
   "action": {

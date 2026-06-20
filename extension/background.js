@@ -46,19 +46,27 @@ function getApiBase() {
   });
 }
 
+async function parseJsonResponse(res, apiBase) {
+  try {
+    return await res.json();
+  } catch {
+    throw new Error(`API at ${apiBase} did not return JSON - check the endpoint in settings.`);
+  }
+}
+
 async function scanUrl(apiBase, url) {
   const scanRes = await fetch(`${apiBase}/api/scan`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ url }),
   });
-  const scanBody = await scanRes.json();
+  const scanBody = await parseJsonResponse(scanRes, apiBase);
   if (!scanRes.ok || !scanBody.id) {
     throw new Error(scanBody.error || "Scan request failed");
   }
 
   const resultRes = await fetch(`${apiBase}/api/result?id=${encodeURIComponent(scanBody.id)}`);
-  const resultBody = await resultRes.json();
+  const resultBody = await parseJsonResponse(resultRes, apiBase);
   if (!resultRes.ok) {
     throw new Error(resultBody.error || "Fetching scan result failed");
   }
@@ -93,8 +101,24 @@ async function runScanForTab(tab) {
   }
 }
 
+// Auto-scan when a tab finishes loading a new page, so a result/banner is
+// already there without the user having to open the popup and click
+// "Rescan this page" manually. Tracks the last scanned URL per tab so
+// in-page events (title changes, etc.) that don't actually navigate don't
+// trigger a repeat scan.
+const scannedUrlByTab = new Map();
+
 chrome.tabs.onRemoved.addListener((tabId) => {
   clearStoredResult(tabId);
+  scannedUrlByTab.delete(tabId);
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status !== "complete" || !tab.url) return;
+  if (scannedUrlByTab.get(tabId) === tab.url) return;
+
+  scannedUrlByTab.set(tabId, tab.url);
+  runScanForTab(tab);
 });
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
