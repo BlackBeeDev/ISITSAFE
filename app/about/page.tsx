@@ -29,15 +29,13 @@ export default function AboutPage() {
         <div className="mx-auto max-w-4xl px-6 py-16 lg:py-20">
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-brand-600">Who we are</p>
           <h2 className="mt-2 text-3xl font-bold tracking-tight text-brand-900">
-            Four students who got tired of guessing
+            We&apos;re four students, not a security company
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-slate-600">
-            We&apos;re four university students who built IsItSafe over a single weekend. We&apos;re not a security
-            company — we&apos;re the people it&apos;s for. We&apos;ve watched friends lose accounts to fake login
-            pages, seen a parent almost wire money to a &ldquo;boss&rdquo; who wasn&apos;t real, and hovered over
-            plenty of links ourselves, unsure. The tools that could have caught those were too expensive, too
-            complicated, or built for IT departments instead of regular people. So we built the thing we wish our
-            families had.
+            We built IsItSafe at the NJx Hackathon because most tools that protect people online are made for big
+            companies and IT departments — not for the average person trying to work out whether a link is real. We
+            wanted something free, simple, and honest that we&apos;d be comfortable handing to our own families and
+            friends. So we made it.
           </p>
         </div>
       </section>
@@ -47,13 +45,16 @@ export default function AboutPage() {
         <div className="mx-auto max-w-4xl px-6 py-16 lg:py-20">
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-brand-600">Why we exist</p>
           <h2 className="mt-2 text-3xl font-bold tracking-tight text-brand-900">
-            Scams got smarter. Most of us didn&apos;t get new tools.
+            AI can fake almost anything now
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-slate-600">
-            AI has made online scams frighteningly good. A fake login page can look identical to the real one, an
-            email can copy a brand perfectly, and a single message can create just enough panic to make you act
-            before you think. The warnings built into browsers tend to show up too late, are easy to dismiss, and
-            never explain <em>why</em> something is dangerous — so most people are left to guess.
+            Online scams have become frighteningly convincing. A fake login page can look identical to the real
+            one, an email can copy a brand down to the logo, and a single message can manufacture just enough panic
+            to make you act before you think. Meanwhile, the warnings meant to protect you fall short: a
+            browser&apos;s red &ldquo;deceptive site&rdquo; screen is easy to click straight through, the little
+            padlock in the address bar only means the connection is encrypted — not that the site is honest, since
+            scam sites use it too — and a vague &ldquo;this site may be unsafe&rdquo; popup never tells you why. So
+            most people are left to guess.
           </p>
         </div>
       </section>
@@ -70,6 +71,21 @@ export default function AboutPage() {
             your device — checks it against trusted threat databases, and has an AI read the page the way a
             careful person would. Seconds later you get a plain answer: safe, caution, or unsafe, with a risk
             score, a screenshot, and a sentence or two on what&apos;s going on and what to do next.
+          </p>
+        </div>
+      </section>
+
+      {/* YOUR PRIVACY */}
+      <section className="border-y border-slate-100 bg-slate-50">
+        <div className="mx-auto max-w-4xl px-6 py-16 lg:py-20">
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-brand-600">Your privacy</p>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight text-brand-900">
+            The dangerous page opens on our side — never on yours
+          </h2>
+          <p className="mt-5 text-lg leading-relaxed text-slate-600">
+            When you check something, the suspicious page loads inside an isolated sandbox on our servers, so it
+            never runs on your phone or computer. You don&apos;t need an account and you don&apos;t hand over
+            personal details to get an answer — you just paste what you want checked, and we send back the verdict.
           </p>
         </div>
       </section>
