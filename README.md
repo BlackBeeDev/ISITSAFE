@@ -19,6 +19,9 @@ Create `.env.local` from `.env.example` when you are ready to connect real APIs.
 - `POST /api/scan`
 - `GET /api/result?id=...`
 
+The browser extension API contract is documented in
+[`docs/extension-api-contract.md`](docs/extension-api-contract.md).
+
 ## Supabase table
 
 ```sql
@@ -32,3 +35,4 @@ create table scans (
   created_at timestamptz not null default now()
 );
 ```
+##...
