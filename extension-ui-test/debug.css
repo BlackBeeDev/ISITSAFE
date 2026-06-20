@@ -1,0 +1,70 @@
+/* =====================================================================
+   GHOSTLINK DEBUG PANEL — dev-only styles.
+   This entire file is only referenced by the <link rel="stylesheet"
+   href="debug.css" /> tag in popup.html. Delete this file and that tag
+   (plus the #ghostlink-debug HTML block and debug.js) to fully remove
+   the debug feature.
+   ===================================================================== */
+
+.debug-panel {
+  margin-top: 4px;
+  border: 1px dashed rgba(27, 27, 31, 0.3);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-color: rgba(108, 92, 231, 0.06);
+}
+
+.debug-title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6C5CE7;
+}
+
+.debug-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.debug-btn {
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  padding: 7px 10px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.debug-btn:hover {
+  opacity: 0.9;
+}
+
+.debug-btn-safe {
+  background-color: #2BB673;
+}
+
+.debug-btn-caution {
+  background-color: #F2A93B;
+}
+
+.debug-btn-unsafe {
+  background-color: #E63950;
+}
+
+.debug-status {
+  margin: 0;
+  font-size: 11px;
+  min-height: 14px;
+  color: #1B1B1F;
+  opacity: 0.7;
+}
+/* ===== GHOSTLINK DEBUG PANEL STYLES END ===== */
