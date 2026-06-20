@@ -17,10 +17,11 @@ export function ScanForm() {
     setError("");
 
     try {
+      const normalizedUrl = /^https?:\/\//i.test(url) ? url : `https://${url}`;
       const response = await fetch("/api/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url })
+        body: JSON.stringify({ url: normalizedUrl })
       });
       const data = await response.json();
 
@@ -41,9 +42,9 @@ export function ScanForm() {
       <input
         className="h-12 rounded-md border border-slate-300 bg-white px-4 text-base outline-none ring-emerald-600 transition focus:ring-2"
         onChange={(event) => setUrl(event.target.value)}
-        placeholder="https://example.com"
+        placeholder="https://example.com or example.com"
         required
-        type="url"
+        type="text"
         value={url}
       />
       <Button disabled={loading} type="submit">

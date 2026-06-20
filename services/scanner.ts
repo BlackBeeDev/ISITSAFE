@@ -14,9 +14,10 @@ export async function runScan(url: string): Promise<ScanRecord> {
 
   const textScore = snapshot.text.toLowerCase().includes("password") ? 20 : 0;
   const score = Math.min(reputation.score + textScore, 100);
-  const status = score >= 50 ? "unsafe" : "safe";
+  const status = score >= 50 ? "unsafe" : score >= 25 ? "caution" : "safe";
   const explanation = await explainScan({
     url: normalizedUrl,
+    domain: reputation.domain,
     reputationScore: score,
     signals: reputation.signals,
     snapshot

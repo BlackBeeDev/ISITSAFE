@@ -1,6 +1,10 @@
 # IsItSafe
 
-Basic MVP wiring for a suspicious URL scanner.
+Suspicious URL scanner: paste a link (or have the browser extension auto-check the
+current tab) and get a safe/caution/unsafe verdict, risk score, screenshot preview,
+and AI-style explanation.
+
+Live API: https://isitsafe.vercel.app
 
 ## Run locally
 
@@ -9,15 +13,57 @@ npm install
 npm run dev
 ```
 
-Create `.env.local` from `.env.example` when you are ready to connect real APIs.
+Create `.env.local` from `.env.example` when you are ready to connect real APIs:
+
+- `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` - persists scans so
+  `/results/[id]` and `GET /api/result` work across requests. Without these,
+  scans only live in memory for the lifetime of one server process (fine for
+  `npm run dev`, but won't survive across requests on serverless hosting).
+- `OPENAI_API_KEY` - generates the explanation sentence. Falls back to a
+  templated explanation if unset.
+- `GOOGLE_SAFE_BROWSING_API_KEY` / `VIRUSTOTAL_API_KEY` - real reputation
+  lookups against the scanned domain. Falls back to a basic URL keyword
+  heuristic if unset.
+
+## How scoring works
+
+`services/reputation.ts` extracts the domain from the scanned URL and checks
+it against Google Safe Browsing and VirusTotal (when keys are configured),
+plus a simple keyword heuristic (e.g. `login`, `verify`, `free`, `gift` in the
+URL). The combined score maps to a status:
+
+- `>= 50` - unsafe
+- `25-49` - caution
+- `< 25` - safe
 
 ## MVP routes
 
 - `/` landing page with scan form
 - `/scan` scan page
-- `/results/[id]` result page
-- `POST /api/scan`
-- `GET /api/result?id=...`
+- `/results/[id]` result page (requires Supabase configured - see above)
+- `POST /api/scan` - runs a scan and returns the full result inline
+- `GET /api/result?id=...` - looks up a previously persisted result (requires Supabase)
+
+## Browser extension
+
+`extension/` is an MV3 extension that auto-scans every page you navigate to
+and shows a warning banner for caution/unsafe results, without needing to
+click the extension icon. It talks to the deployed API by default
+(`https://isitsafe.vercel.app`); change this under the extension popup's
+"API endpoint" section if you're pointing it at a local server instead.
+
+`extension-ui-test/` is a UI-only variant with simulate buttons for testing
+the banner/popup styling without a live API.
+
+## Deploying
+
+```bash
+npx vercel --prod
+```
+
+Set the same env vars from `.env.local` in the Vercel project settings
+(Project -> Settings -> Environment Variables) so the deployed API has
+real reputation/AI/persistence behavior.
 
 ## Supabase table
 

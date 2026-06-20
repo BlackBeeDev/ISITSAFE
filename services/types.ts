@@ -1,4 +1,4 @@
-export type ScanStatus = "safe" | "unsafe";
+export type ScanStatus = "safe" | "caution" | "unsafe";
 
 export type ScanRecord = {
   id: string;

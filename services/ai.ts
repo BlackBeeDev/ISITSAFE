@@ -3,6 +3,7 @@ import type { PageSnapshot } from "@/services/types";
 
 type ExplanationInput = {
   url: string;
+  domain: string;
   reputationScore: number;
   signals: string[];
   snapshot: PageSnapshot;
@@ -27,6 +28,7 @@ export async function explainScan(input: ExplanationInput) {
           role: "user",
           content: JSON.stringify({
             url: input.url,
+            domain: input.domain,
             score: input.reputationScore,
             signals: input.signals,
             text: input.snapshot.text.slice(0, 3000)
@@ -46,12 +48,12 @@ export async function explainScan(input: ExplanationInput) {
 
 function fallbackExplanation(input: ExplanationInput) {
   if (input.reputationScore >= 50) {
-    return "Unsafe. This URL has suspicious signals and should be avoided until verified.";
+    return `Unsafe. ${input.domain} has suspicious signals and should be avoided until verified.`;
   }
 
   if (input.signals.length > 0) {
-    return `Safe with caution. ${input.signals.join(", ")}.`;
+    return `Safe with caution. ${input.domain}: ${input.signals.join(", ")}.`;
   }
 
-  return "Safe. No obvious suspicious signals were found in the basic MVP scan.";
+  return `Safe. No obvious suspicious signals were found for ${input.domain} in the basic MVP scan.`;
 }

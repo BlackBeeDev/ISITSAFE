@@ -1,6 +1,6 @@
 // GhostLink popup script
 
-const DEFAULT_API_BASE = "http://localhost:3000";
+const DEFAULT_API_BASE = "https://isitsafe.vercel.app";
 const VALID_STATUSES = new Set(["safe", "caution", "unsafe", "error"]);
 
 const resultCard = document.getElementById("result-card");
