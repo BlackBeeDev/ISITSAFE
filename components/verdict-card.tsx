@@ -2,6 +2,7 @@ import { CheckCircle2, AlertTriangle, XCircle, Image as ImageIcon } from "lucide
 import { verdictStyle, type VerdictBand } from "@/lib/verdict";
 import type { ScanStatus } from "@/services/types";
 import { RiskGauge } from "@/components/risk-gauge";
+import { VerdictAction } from "@/components/verdict-action";
 
 const ICONS: Record<VerdictBand, typeof CheckCircle2> = {
   safe: CheckCircle2,
@@ -54,7 +55,7 @@ export function VerdictCard({
             className={`mt-4 flex items-center gap-2 rounded-lg px-3.5 py-2.5 text-sm font-semibold ${style.bg} ${style.text}`}
           >
             <Icon className="h-4 w-4 shrink-0" />
-            {style.action}
+            <VerdictAction band={style.band} action={style.action} url={url} />
           </div>
         </div>
       </div>

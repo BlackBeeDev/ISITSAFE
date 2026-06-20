@@ -22,6 +22,7 @@ import {
 import type { ScanRecord } from "@/services/types";
 import { verdictStyle, type VerdictBand } from "@/lib/verdict";
 import { RiskGauge } from "@/components/risk-gauge";
+import { VerdictAction } from "@/components/verdict-action";
 
 type StepDef = {
   label: string;
@@ -318,7 +319,7 @@ export function ScanProgress({ url }: { url: string }) {
                   className={`mt-3 flex items-center gap-2 rounded-lg px-3.5 py-2.5 text-sm font-semibold fade-in ${style.bg} ${style.text}`}
                 >
                   <BandIcon className="h-4 w-4 shrink-0" />
-                  {style.action}
+                  <VerdictAction band={style.band} action={style.action} url={url} />
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {record ? (
