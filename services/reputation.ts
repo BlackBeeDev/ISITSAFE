@@ -1,3 +1,5 @@
+import { inspectPastedLink } from "@/utils/link-agent";
+
 type ReputationResult = {
   score: number;
   signals: string[];
@@ -16,6 +18,18 @@ export async function checkReputation(url: string): Promise<ReputationResult> {
   }
 
   const lowerUrl = url.toLowerCase();
+  const agentResult = inspectPastedLink(url);
+
+  for (const signal of agentResult.signals) {
+    if (signal.severity === "danger") {
+      score += 35;
+    } else if (signal.severity === "warning") {
+      score += 15;
+    }
+
+    signals.push(signal.label);
+  }
+
   if (lowerUrl.includes("login") || lowerUrl.includes("verify")) {
     score += 25;
     signals.push("URL contains a credential-related keyword");
