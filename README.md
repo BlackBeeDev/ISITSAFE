@@ -18,6 +18,22 @@ Create `.env.local` from `.env.example` when you are ready to connect real APIs.
 - `/results/[id]` result page
 - `POST /api/scan`
 - `GET /api/result?id=...`
+- `POST /api/inbound-email`
+
+## Forwarded email scanning
+
+Configure Resend Receiving so forwarded messages for your scan address are sent
+to `/api/inbound-email`. Add a Resend webhook for the `email.received` event
+that points to `/api/inbound-email`. Resend webhooks include email metadata, then
+the app uses `RESEND_API_KEY` to fetch the received email body before scanning
+links.
+
+Set `INBOUND_EMAIL_WEBHOOK_SECRET` in production and have the provider send it
+as either `x-isitsafe-webhook-secret`, `Authorization: Bearer ...`, or
+`?secret=...`.
+
+The endpoint extracts up to three links from the forwarded email, scans them,
+and stores a `forwarded_emails` record linked to the generated scan IDs.
 
 ## Supabase table
 

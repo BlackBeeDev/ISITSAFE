@@ -21,6 +21,23 @@ export type ScanRecord = {
   created_at: string;
 };
 
+export type ForwardedEmailStatus = "queued" | "scanned" | "no_link" | "failed";
+
+export type ForwardedEmailRecord = {
+  id: string;
+  provider: string;
+  message_id: string | null;
+  from_email: string | null;
+  to_email: string | null;
+  subject: string | null;
+  body_preview: string;
+  detected_urls: string[];
+  scan_ids: string[];
+  status: ForwardedEmailStatus;
+  error: string | null;
+  created_at: string;
+};
+
 export type PageSnapshot = {
   screenshot: string | null;
   text: string;

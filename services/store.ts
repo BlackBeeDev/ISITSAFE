@@ -1,12 +1,16 @@
 import { supabase } from "@/lib/supabase";
-import type { ScanRecord } from "@/services/types";
+import type { ForwardedEmailRecord, ScanRecord } from "@/services/types";
 
 const globalStore = globalThis as typeof globalThis & {
   isItSafeScans?: Map<string, ScanRecord>;
+  isItSafeForwardedEmails?: Map<string, ForwardedEmailRecord>;
 };
 
 const memoryStore = globalStore.isItSafeScans ?? new Map<string, ScanRecord>();
 globalStore.isItSafeScans = memoryStore;
+const forwardedEmailStore =
+  globalStore.isItSafeForwardedEmails ?? new Map<string, ForwardedEmailRecord>();
+globalStore.isItSafeForwardedEmails = forwardedEmailStore;
 
 export async function saveScan(record: ScanRecord) {
   memoryStore.set(record.id, record);
@@ -44,4 +48,19 @@ export async function findScan(id: string) {
   }
 
   return data as ScanRecord;
+}
+
+export async function saveForwardedEmail(record: ForwardedEmailRecord) {
+  forwardedEmailStore.set(record.id, record);
+
+  if (!supabase) {
+    return record;
+  }
+
+  const { error } = await supabase.from("forwarded_emails").insert(record);
+  if (error) {
+    console.error("Supabase forwarded email insert failed", error);
+  }
+
+  return record;
 }

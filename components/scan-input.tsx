@@ -24,18 +24,24 @@ export function ScanInput() {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("auto");
   const [value, setValue] = useState("");
+  const [imageName, setImageName] = useState("");
   const [error, setError] = useState("");
 
   const analysis = value.trim() ? inspectMessage(value) : null;
   const detected = mode === "auto" ? getDetectedMode(analysis) : mode;
   const comingSoon = detected === "qr" && !analysis?.normalizedUrl;
 
-  function onCheck() {
+  function onCheck(event?: React.FormEvent<HTMLFormElement>) {
+    event?.preventDefault();
     setError("");
     const trimmed = value.trim();
 
     if (!trimmed) {
-      setError("Paste a link, message, email, or screenshot text to check it.");
+      setError(
+        imageName
+          ? "Image reading is not wired yet. Paste the link or text from the image to scan it."
+          : "Paste a link, message, email, or screenshot text to scan it."
+      );
       return;
     }
 
@@ -50,8 +56,11 @@ export function ScanInput() {
   }
 
   function onFile(event: React.ChangeEvent<HTMLInputElement>) {
-    if (event.target.files?.[0]) {
+    const file = event.target.files?.[0];
+
+    if (file) {
       setMode("qr");
+      setImageName(file.name);
     }
   }
 
@@ -77,7 +86,10 @@ export function ScanInput() {
         })}
       </div>
 
-      <div className="rounded-2xl border border-slate-300 bg-white p-3 transition focus-within:border-brand-600 focus-within:ring-4 focus-within:ring-brand-100">
+      <form
+        onSubmit={onCheck}
+        className="rounded-2xl border border-slate-300 bg-white p-3 transition focus-within:border-brand-600 focus-within:ring-4 focus-within:ring-brand-100"
+      >
         <label htmlFor="checkInput" className="sr-only">
           Paste a link, an email, or upload a QR image
         </label>
@@ -96,6 +108,11 @@ export function ScanInput() {
               Upload image
               <input type="file" accept="image/*" className="hidden" onChange={onFile} />
             </label>
+            {imageName ? (
+              <span className="max-w-[180px] truncate rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                {imageName}
+              </span>
+            ) : null}
             {detected && detected !== "auto" ? (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700">
                 {mode === "auto" ? "Detected: " : ""}
@@ -104,15 +121,14 @@ export function ScanInput() {
             ) : null}
           </div>
           <button
-            type="button"
-            onClick={onCheck}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-brand-700 px-6 text-base font-semibold text-white transition hover:bg-brand-800 active:scale-[.99]"
+            type="submit"
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand-700 px-6 text-base font-semibold text-white transition hover:bg-brand-800 active:scale-[.99] sm:w-auto"
           >
             <Search className="h-5 w-5" />
-            Check it
+            Scan now
           </button>
         </div>
-      </div>
+      </form>
 
       <p className="mt-3 flex items-center gap-1.5 text-sm text-slate-500">
         <ShieldCheck className="h-4 w-4 shrink-0" />
@@ -124,7 +140,8 @@ export function ScanInput() {
       {error ? <p className="mt-2 text-sm font-medium text-red-600">{error}</p> : null}
       {comingSoon ? (
         <p className="mt-2 text-sm font-medium text-amber-700">
-          Image / QR scanning is coming soon. For now, paste the link text from the QR code.
+          Image / QR scanning is coming soon. Uploads are saved for preview only right now, so paste the link
+          text from the image to scan it.
         </p>
       ) : null}
     </div>
