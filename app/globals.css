@@ -16,6 +16,99 @@
 
 body {
   margin: 0;
-  background: hsl(var(--background));
   color: hsl(var(--foreground));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+:focus-visible {
+  outline: 3px solid #397cb0;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Gradient wordmark used by the logo */
+.wordmark {
+  background: linear-gradient(90deg, #397cb0 0%, #4f97a0 48%, #7fbf4a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.grad-bar {
+  background: linear-gradient(90deg, #397cb0 0%, #4f97a0 50%, #7fbf4a 100%);
+}
+
+/* Scroll-reveal for the example/result cards */
+.reveal {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Scan-page animations */
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#gaugeScan {
+  transform-origin: 60px 60px;
+  animation: spin 1.4s linear infinite;
+}
+
+.shimmer {
+  background: linear-gradient(100deg, #eef2f6 30%, #e2e8f0 50%, #eef2f6 70%);
+  background-size: 200% 100%;
+  animation: sh 1.3s linear infinite;
+}
+@keyframes sh {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.step-line {
+  transition: background-color 0.4s ease;
+}
+
+.fade-in {
+  animation: fade 0.5s ease both;
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .spin,
+  #gaugeScan,
+  .shimmer,
+  .fade-in {
+    animation: none;
+  }
 }

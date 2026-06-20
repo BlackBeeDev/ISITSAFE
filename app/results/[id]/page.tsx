@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Plus } from "lucide-react";
 import { getScanResult } from "@/services/results";
+import { SiteNav } from "@/components/site-nav";
+import { SiteFooter } from "@/components/site-footer";
+import { VerdictCard } from "@/components/verdict-card";
 
 export default async function ResultPage({
   params
@@ -13,44 +17,35 @@ export default async function ResultPage({
     notFound();
   }
 
-  const isUnsafe = result.status === "unsafe";
-
   return (
-    <main className="mx-auto min-h-screen max-w-5xl px-6 py-8">
-      <Link className="text-sm font-medium text-slate-600" href="/">
-        IsItSafe
-      </Link>
-
-      <section className="mt-10 grid gap-6 lg:grid-cols-[1fr_360px]">
-        <div>
-          <p className="text-sm text-slate-500">{result.url}</p>
-          <h1 className="mt-3 text-4xl font-bold tracking-normal">
-            {isUnsafe ? "Unsafe" : "Safe"}
-          </h1>
-          <p className="mt-2 text-lg text-slate-600">
-            Risk score: <span className="font-semibold">{result.score}/100</span>
-          </p>
-          <div className="mt-8 rounded-md border border-slate-200 bg-white p-5">
-            <h2 className="font-semibold">Explanation</h2>
-            <p className="mt-3 text-slate-700">{result.explanation}</p>
+    <>
+      <SiteNav />
+      <main className="mx-auto max-w-5xl px-6 py-10">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Scan result</p>
+            <p className="mt-1 truncate font-mono text-sm text-slate-700">{result.url}</p>
           </div>
+          <Link
+            href="/"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+          >
+            <Plus className="h-4 w-4" />
+            New scan
+          </Link>
         </div>
 
-        <aside className="rounded-md border border-slate-200 bg-white p-4">
-          <h2 className="font-semibold">Screenshot</h2>
-          {result.screenshot ? (
-            <img
-              alt="Screenshot preview"
-              className="mt-4 aspect-video w-full rounded border object-cover"
-              src={result.screenshot}
-            />
-          ) : (
-            <div className="mt-4 grid aspect-video place-items-center rounded border bg-slate-100 text-sm text-slate-500">
-              No screenshot captured
-            </div>
-          )}
-        </aside>
-      </section>
-    </main>
+        <div className="mt-6">
+          <VerdictCard
+            url={result.url}
+            status={result.status}
+            score={result.score}
+            explanation={result.explanation}
+            screenshot={result.screenshot}
+          />
+        </div>
+      </main>
+      <SiteFooter />
+    </>
   );
 }
