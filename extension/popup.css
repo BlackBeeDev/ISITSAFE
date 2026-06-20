@@ -1,0 +1,193 @@
+:root {
+  --bg: #FAFAF7;
+  --text: #1B1B1F;
+  --accent: #6C5CE7;
+  --safe: #2BB673;
+  --caution: #F2A93B;
+  --unsafe: #E63950;
+  --neutral: #9AA0A6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 300px;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-header .logo {
+  font-size: 18px;
+}
+
+.app-header h1 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.result-card {
+  border-radius: 8px;
+  padding: 12px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.result-neutral {
+  background-color: var(--neutral);
+}
+
+.result-safe {
+  background-color: var(--safe);
+}
+
+.result-caution {
+  background-color: var(--caution);
+}
+
+.result-unsafe {
+  background-color: var(--unsafe);
+}
+
+.result-status {
+  font-weight: 700;
+  font-size: 14px;
+  margin: 0;
+}
+
+.result-score {
+  font-size: 12px;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.result-reason {
+  font-size: 12px;
+  margin: 0;
+  word-break: break-word;
+}
+
+.primary-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: var(--accent);
+  border: none;
+  border-radius: 6px;
+  padding: 9px 12px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.primary-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.primary-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.settings {
+  border-top: 1px solid rgba(27, 27, 31, 0.1);
+  padding-top: 8px;
+}
+
+.settings-toggle {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  background: none;
+  border: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.chevron {
+  font-size: 11px;
+  transition: transform 0.15s ease;
+}
+
+.settings-toggle[aria-expanded="true"] .chevron {
+  transform: rotate(90deg);
+}
+
+.settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+}
+
+.settings-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.settings-input {
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--text);
+  background-color: #ffffff;
+  border: 1px solid rgba(27, 27, 31, 0.2);
+  border-radius: 5px;
+  padding: 7px 8px;
+}
+
+.settings-input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.secondary-btn {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  background-color: rgba(108, 92, 231, 0.12);
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+
+.secondary-btn:hover {
+  background-color: rgba(108, 92, 231, 0.2);
+}
+
+.save-status {
+  font-size: 11px;
+  margin: 0;
+  min-height: 14px;
+  color: var(--safe);
+}
