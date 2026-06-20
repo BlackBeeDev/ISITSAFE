@@ -1,7 +1,12 @@
 import { supabase } from "@/lib/supabase";
 import type { ScanRecord } from "@/services/types";
 
-const memoryStore = new Map<string, ScanRecord>();
+const globalStore = globalThis as typeof globalThis & {
+  isItSafeScans?: Map<string, ScanRecord>;
+};
+
+const memoryStore = globalStore.isItSafeScans ?? new Map<string, ScanRecord>();
+globalStore.isItSafeScans = memoryStore;
 
 export async function saveScan(record: ScanRecord) {
   memoryStore.set(record.id, record);

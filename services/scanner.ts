@@ -3,7 +3,8 @@ import { explainScan } from "@/services/ai";
 import { scanPage } from "@/services/page-scanner";
 import { checkReputation } from "@/services/reputation";
 import { saveScan } from "@/services/store";
-import type { ScanRecord } from "@/services/types";
+import type { ScanEvidence, ScanRecord } from "@/services/types";
+import { inspectPastedLink } from "@/utils/link-agent";
 
 export async function runScan(url: string): Promise<ScanRecord> {
   const normalizedUrl = normalizeUrl(url);
@@ -13,12 +14,32 @@ export async function runScan(url: string): Promise<ScanRecord> {
   ]);
 
   const textScore = snapshot.text.toLowerCase().includes("password") ? 20 : 0;
-  const score = Math.min(reputation.score + textScore, 100);
+  const pageScore = snapshot.captured ? 0 : 60;
+  const pageSignals = snapshot.error
+    ? [`Browser scanner: ${snapshot.error}`]
+    : [];
+  const browserEvidence: ScanEvidence = {
+    source: "Page scanner",
+    status: snapshot.captured ? "clean" : "unavailable",
+    summary: snapshot.captured
+      ? "The page opened in the isolated browser and a screenshot was captured."
+      : "The isolated browser could not open the page.",
+    details: snapshot.error
+      ? [snapshot.error]
+      : [
+          snapshot.text
+            ? `Extracted ${snapshot.text.length} characters of page text`
+            : "No visible page text extracted"
+        ],
+    scoreImpact: pageScore
+  };
+  const signals = [...reputation.signals, ...pageSignals];
+  const score = Math.min(reputation.score + textScore + pageScore, 100);
   const status = score >= 50 ? "unsafe" : "safe";
   const explanation = await explainScan({
     url: normalizedUrl,
     reputationScore: score,
-    signals: reputation.signals,
+    signals,
     snapshot
   });
 
@@ -29,11 +50,17 @@ export async function runScan(url: string): Promise<ScanRecord> {
     status,
     screenshot: snapshot.screenshot,
     explanation,
+    evidence: [...reputation.evidence, browserEvidence],
     created_at: new Date().toISOString()
   });
 }
 
 function normalizeUrl(url: string) {
-  const parsed = new URL(url);
-  return parsed.toString();
+  const result = inspectPastedLink(url);
+
+  if (!result.normalizedUrl) {
+    throw new Error("No valid URL detected");
+  }
+
+  return result.normalizedUrl;
 }
