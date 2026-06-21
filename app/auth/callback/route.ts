@@ -15,15 +15,13 @@ export async function GET(request: Request) {
   const rawNext = searchParams.get("next") ?? "/";
   const next = /^\/(?!\/|\\)/.test(rawNext) ? rawNext : "/";
 
-  // Prefer the configured public URL (mirrors getAppUrl in
-  // services/email-forwarding.ts), then proxy-forwarded headers, then the
-  // request origin. Keeps the post-login redirect on the real public host
-  // when running behind a reverse proxy / load balancer.
+  // Return to the same public host that handled the OAuth callback. This keeps
+  // local login on localhost and ngrok login on ngrok, while still falling back
+  // to NEXT_PUBLIC_APP_URL when a proxy does not forward host headers.
   const forwardedHost = request.headers.get("x-forwarded-host");
   const forwardedProto = request.headers.get("x-forwarded-proto") ?? "https";
   const base = (
-    process.env.NEXT_PUBLIC_APP_URL ??
-    (forwardedHost ? `${forwardedProto}://${forwardedHost}` : origin)
+    forwardedHost ? `${forwardedProto}://${forwardedHost}` : origin
   ).replace(/\/$/, "");
 
   if (code) {
