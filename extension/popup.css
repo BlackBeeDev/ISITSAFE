@@ -120,9 +120,9 @@ body {
 
 .settings-toggle {
   font-family: inherit;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--text);
+  color: #9a9a9a;
   background: none;
   border: none;
   width: 100%;
@@ -131,6 +131,10 @@ body {
   justify-content: space-between;
   cursor: pointer;
   padding: 4px 0;
+}
+
+.settings-toggle:hover {
+  color: var(--text);
 }
 
 .chevron {
