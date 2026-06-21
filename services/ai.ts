@@ -31,6 +31,8 @@ export async function explainScan(input: ExplanationInput) {
             domain: input.domain,
             score: input.reputationScore,
             signals: input.signals,
+            reachable: input.snapshot.reachable,
+            navigationError: input.snapshot.navigationError,
             text: input.snapshot.text.slice(0, 3000)
           })
         }
@@ -47,12 +49,20 @@ export async function explainScan(input: ExplanationInput) {
 }
 
 function fallbackExplanation(input: ExplanationInput) {
+  const unreachable = input.snapshot.reachable === false;
+
   if (input.reputationScore >= 50) {
-    return `Unsafe. ${input.domain} has suspicious signals and should be avoided until verified.`;
+    const reason = unreachable
+      ? "it could not be reached and combined with other signals looks suspicious"
+      : "it has suspicious signals";
+    return `Unsafe. ${input.domain} - ${reason} and should be avoided until verified.`;
   }
 
-  if (input.signals.length > 0) {
-    return `Safe with caution. ${input.domain}: ${input.signals.join(", ")}.`;
+  if (input.reputationScore >= 25) {
+    const reason = unreachable
+      ? "the page could not be reached (broken link, typo, or the site may be down) - this is unverified, not confirmed safe"
+      : `${input.signals.join(", ")}`;
+    return `Caution. ${input.domain}: ${reason}.`;
   }
 
   return `Safe. No obvious suspicious signals were found for ${input.domain} in the basic MVP scan.`;

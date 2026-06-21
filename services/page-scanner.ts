@@ -22,28 +22,44 @@ async function launchBrowser() {
 }
 
 export async function scanPage(url: string): Promise<PageSnapshot> {
+  let browser;
   try {
-    const browser = await launchBrowser();
+    browser = await launchBrowser();
+  } catch (error) {
+    console.error("Browser launch failed", error);
+    return { screenshot: null, text: "", reachable: null, navigationError: null };
+  }
+
+  try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
 
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 12000 });
+    try {
+      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 12000 });
+    } catch (error) {
+      return {
+        screenshot: null,
+        text: "",
+        reachable: false,
+        navigationError: error instanceof Error ? error.message : "Navigation failed"
+      };
+    }
+
     const text = await page.locator("body").innerText({ timeout: 3000 }).catch(() => "");
     const screenshotBuffer = await page.screenshot({
       fullPage: false,
       type: "png"
     });
 
-    await browser.close();
-
     return {
       screenshot: `data:image/png;base64,${screenshotBuffer.toString("base64")}`,
-      text
+      text,
+      reachable: true,
+      navigationError: null
     };
   } catch (error) {
     console.error("Playwright scan failed", error);
-    return {
-      screenshot: null,
-      text: ""
-    };
+    return { screenshot: null, text: "", reachable: null, navigationError: null };
+  } finally {
+    await browser.close().catch(() => {});
   }
 }
