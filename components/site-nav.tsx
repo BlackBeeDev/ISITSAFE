@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { LogIn } from "lucide-react";
 import { Wordmark } from "@/components/wordmark";
+import { AuthButton } from "@/components/auth-button";
 
 /**
- * Sticky top navigation shared across pages. "Log in" is a placeholder for a
- * feature that isn't built yet.
+ * Sticky top navigation shared across pages. The login control lives in the
+ * isolated <AuthButton /> client component.
  */
 export function SiteNav({ active }: { active?: "how" | "what" | "about" | "plans" }) {
   const linkClass = (key: "how" | "what" | "about" | "plans") =>
@@ -31,14 +31,7 @@ export function SiteNav({ active }: { active?: "how" | "what" | "about" | "plans
           <Link href="/plans" className={linkClass("plans")}>
             Plans
           </Link>
-          <button
-            type="button"
-            title="Coming soon"
-            className="inline-flex cursor-not-allowed items-center gap-2 rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white opacity-90 transition hover:bg-brand-800"
-          >
-            <LogIn className="h-4 w-4" />
-            Log in
-          </button>
+          <AuthButton />
         </div>
       </nav>
     </header>
