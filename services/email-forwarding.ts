@@ -108,7 +108,8 @@ function buildSecurityEmailReport(
   const risk = getRiskProfile(scan.score);
   const reasons = getEvidenceDetails(scan);
   const topReasons = (reasons.length > 0 ? reasons : [scan.explanation]).slice(0, 4);
-  const destinationHost = getHost(scan.url);
+  const forwardedUrl = getForwardedUrlForScan(record, scan);
+  const destinationHost = getHost(forwardedUrl) ?? getHost(scan.url);
   const detectedAt = new Date(scan.created_at).toLocaleString("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -130,7 +131,7 @@ function buildSecurityEmailReport(
     `Threat type: ${threatType}`,
     "",
     `From: ${sender.email ?? "Unknown sender"}`,
-    `Scanned link: ${scan.url}`,
+    `Forwarded link: ${forwardedUrl}`,
     `Domain: ${destinationHost ?? "Unknown"}`,
     `Detected: ${detectedAt}`,
     `Full result: ${resultUrl}`,
@@ -158,7 +159,7 @@ function buildSecurityEmailReport(
       <h2 style="margin-top: 24px;">Summary</h2>
       <table style="border-collapse: collapse; width: 100%;">
         ${tableRow("From", sender.email ?? "Unknown sender")}
-        ${tableRow("Scanned link", `<a href="${escapeHtml(scan.url)}">${escapeHtml(scan.url)}</a>`, true)}
+        ${tableRow("Forwarded link", `<a href="${escapeHtml(forwardedUrl)}">${escapeHtml(forwardedUrl)}</a>`, true)}
         ${tableRow("Domain", destinationHost ?? "Unknown")}
         ${tableRow("Threat type", threatType)}
         ${tableRow("Detected", detectedAt)}
@@ -183,6 +184,18 @@ function buildSecurityEmailReport(
   `;
 
   return { subject, textBody, htmlBody };
+}
+
+function getForwardedUrlForScan(record: ForwardedEmailRecord, scan: ScanRecord) {
+  return record.detected_urls.find((url) => sameUrl(url, scan.url)) ?? record.detected_urls[0] ?? scan.url;
+}
+
+function sameUrl(left: string, right: string) {
+  try {
+    return new URL(left).href === new URL(right).href;
+  } catch {
+    return left === right;
+  }
 }
 
 function getRiskProfile(score: number) {
