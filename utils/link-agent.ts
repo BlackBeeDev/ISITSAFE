@@ -288,7 +288,6 @@ function hasProtocol(input: string) {
 
 function isLikelyHost(host: string) {
   return (
-    host === "localhost" ||
     looksLikeIpAddress(host) ||
     /^(?:[a-z0-9-]+\.)+[a-z]{2,}$/i.test(host)
   );
