@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cacheScreenshot } from "@/lib/screenshot-cache";
 
 export function ScanForm() {
   const router = useRouter();
@@ -29,6 +30,7 @@ export function ScanForm() {
         throw new Error(data.error ?? "Scan failed");
       }
 
+      cacheScreenshot(data.id, data.screenshot);
       router.push(`/results/${data.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Scan failed");

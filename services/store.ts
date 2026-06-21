@@ -20,29 +20,20 @@ export async function saveScan(record: ScanRecord) {
 }
 
 export async function findScan(id: string) {
+  // Prefer sources that still have the screenshot - the token decode below
+  // is a lossy fallback (it never carries the screenshot) used only when
+  // nothing richer is available.
   const localRecord = memoryStore.get(id);
   if (localRecord) {
     return localRecord;
   }
 
-  const decoded = decodeScanToken(id);
-  if (decoded) {
-    return decoded;
+  if (supabase) {
+    const { data } = await supabase.from("scans").select("*").eq("id", id).single();
+    if (data) {
+      return data as ScanRecord;
+    }
   }
 
-  if (!supabase) {
-    return null;
-  }
-
-  const { data, error } = await supabase
-    .from("scans")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error) {
-    return null;
-  }
-
-  return data as ScanRecord;
+  return decodeScanToken(id);
 }
