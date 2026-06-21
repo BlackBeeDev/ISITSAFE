@@ -5,38 +5,27 @@ import { LogIn, LogOut } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 
-/**
- * Whether Supabase auth is configured in this environment. When the public env
- * vars are missing we fall back to a disabled button so the nav never crashes
- * (e.g. a teammate who pulls the repo without credentials).
- */
 const isConfigured =
   Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
   Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
-/**
- * Login control for the nav. Shows "Log in" (Google OAuth) when signed out and
- * the signed-in user plus a "Sign out" button when signed in. All auth logic is
- * isolated here so the shared `site-nav` only renders <AuthButton />.
- */
 export function AuthButton() {
-  // One memoized client per mount — avoids "Multiple GoTrueClient instances".
   const supabase = useMemo(
     () => (isConfigured ? createSupabaseBrowserClient() : null),
     []
   );
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(isConfigured);
-  const [authError, setAuthError] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
-  // Surface (and clear) the `?auth_error=1` flag the callback sets when the
-  // OAuth exchange fails, so a failed login isn't silent and the flag doesn't
-  // linger in a shareable URL.
   useEffect(() => {
     if (typeof window === "undefined") return;
+
     const params = new URLSearchParams(window.location.search);
-    if (!params.has("auth_error")) return;
-    setAuthError(true);
+    const error = params.get("auth_error");
+    if (!error) return;
+
+    setAuthError(error);
     params.delete("auth_error");
     const qs = params.toString();
     window.history.replaceState(
@@ -66,7 +55,6 @@ export function AuthButton() {
     };
   }, [supabase]);
 
-  // Supabase not configured — render the original disabled button.
   if (!supabase) {
     return (
       <button
@@ -82,18 +70,23 @@ export function AuthButton() {
 
   async function signIn() {
     if (!supabase) return;
-    await supabase.auth.signInWithOAuth({
+
+    setAuthError(null);
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`
       }
     });
+
+    if (error) {
+      setAuthError(error.message);
+    }
   }
 
   async function signOut() {
     if (!supabase) return;
     await supabase.auth.signOut();
-    // Optimistic update; the onAuthStateChange listener also fires SIGNED_OUT.
     setUser(null);
   }
 
@@ -111,6 +104,7 @@ export function AuthButton() {
       (user.user_metadata?.full_name as string | undefined) ??
       user.email ??
       "Account";
+
     return (
       <div className="flex items-center gap-3">
         <span className="hidden max-w-[12rem] truncate text-sm font-medium text-slate-600 sm:block">
@@ -130,11 +124,14 @@ export function AuthButton() {
 
   return (
     <div className="flex items-center gap-3">
-      {authError && (
-        <span className="hidden text-sm font-medium text-red-600 sm:block">
-          Sign-in failed — try again.
+      {authError ? (
+        <span
+          className="hidden max-w-xs truncate text-sm font-medium text-red-600 sm:block"
+          title={authError}
+        >
+          Sign-in failed: {authError}
         </span>
-      )}
+      ) : null}
       <button
         type="button"
         onClick={signIn}
