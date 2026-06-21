@@ -356,15 +356,26 @@ export function ScanProgress({ url }: { url: string }) {
               <>
                 <video
                   src={record.video}
+                  autoPlay
                   controls
+                  loop
                   muted
                   playsInline
+                  preload="auto"
                   poster={record.screenshot ?? undefined}
                   className="aspect-[16/10] w-full rounded-lg border border-slate-200 object-cover object-top fade-in"
                 />
                 <p className="mt-2 text-xs leading-relaxed text-slate-500">
                   Recorded in an isolated browser. We highlight risky prompts without typing or submitting anything.
                 </p>
+                <a
+                  href={record.video}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-flex text-xs font-semibold text-brand-700 hover:text-brand-800"
+                >
+                  Open replay in a new tab
+                </a>
               </>
             ) : screenshotReady && record?.screenshot ? (
               // eslint-disable-next-line @next/next/no-img-element

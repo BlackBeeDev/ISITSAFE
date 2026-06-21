@@ -35,30 +35,32 @@ type VirusTotalResponse = {
 export async function checkReputation(url: string): Promise<ReputationResult> {
   const signals: string[] = [];
   const pasteSignals: string[] = [];
-  let score = 5;
+  let score = 0;
 
   const lowerUrl = url.toLowerCase();
   const agentResult = inspectPastedLink(url);
+  const host = new URL(url).hostname.toLowerCase();
+  const knownTrustedHost = isKnownTrustedHost(host);
 
   for (const signal of agentResult.signals) {
     if (signal.severity === "danger") {
-      score += 50;
+      score += 35;
     } else if (signal.severity === "warning") {
-      score += 15;
+      score += 8;
     }
 
     signals.push(signal.label);
     pasteSignals.push(signal.label);
   }
 
-  if (lowerUrl.includes("login") || lowerUrl.includes("verify")) {
-    score += 25;
+  if (!knownTrustedHost && (lowerUrl.includes("login") || lowerUrl.includes("verify"))) {
+    score += 10;
     signals.push("URL contains a credential-related keyword");
     pasteSignals.push("URL contains a credential-related keyword");
   }
 
   if (lowerUrl.includes("free") || lowerUrl.includes("gift")) {
-    score += 15;
+    score += 8;
     signals.push("URL contains a lure-style keyword");
     pasteSignals.push("URL contains a lure-style keyword");
   }
@@ -304,7 +306,7 @@ async function fetchVirusTotalDomain(
 
     if (response.status === 404) {
       return {
-        score: 10,
+        score: 0,
         signals: ["VirusTotal has no domain report"],
         evidence: [
           {
@@ -312,7 +314,7 @@ async function fetchVirusTotalDomain(
             status: "unavailable",
             summary: "VirusTotal has no domain report.",
             details: ["Domain was not found in VirusTotal"],
-            scoreImpact: 10
+            scoreImpact: 0
           }
         ]
       };
@@ -421,4 +423,25 @@ function scoreVirusTotalStats(
 
 function encodeVirusTotalUrlId(url: string) {
   return Buffer.from(url).toString("base64url").replace(/=+$/, "");
+}
+
+function isKnownTrustedHost(host: string) {
+  const trustedHosts = [
+    "google.com",
+    "accounts.google.com",
+    "youtube.com",
+    "microsoft.com",
+    "login.microsoftonline.com",
+    "apple.com",
+    "icloud.com",
+    "amazon.com",
+    "paypal.com",
+    "github.com",
+    "linkedin.com",
+    "facebook.com",
+    "instagram.com",
+    "netflix.com"
+  ];
+
+  return trustedHosts.some((trustedHost) => host === trustedHost || host.endsWith(`.${trustedHost}`));
 }

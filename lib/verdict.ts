@@ -27,11 +27,11 @@ export type VerdictStyle = {
  * never contradicts the real safe/unsafe verdict.
  *
  *   score 0-24   -> safe
- *   score 25-49  -> caution   (still status === "safe")
- *   score 50-100 -> unsafe    (status === "unsafe")
+ *   score 25-64  -> caution   (still status === "safe")
+ *   status unsafe -> unsafe
  */
 export function scoreToBand(score: number, status: ScanStatus): VerdictBand {
-  if (status === "unsafe" || score >= 50) {
+  if (status === "unsafe") {
     return "unsafe";
   }
   if (score >= 25) {

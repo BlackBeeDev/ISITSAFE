@@ -13,8 +13,8 @@ export async function runScan(url: string): Promise<ScanRecord> {
     scanPage(normalizedUrl)
   ]);
 
-  const textScore = snapshot.text.toLowerCase().includes("password") ? 20 : 0;
-  const pageScore = snapshot.captured ? 0 : 60;
+  const pageTextRisk = scorePageText(snapshot.text);
+  const pageScore = snapshot.captured ? 0 : scorePageFailure(snapshot.error);
   const pageSignals = snapshot.error
     ? [`Browser scanner: ${snapshot.error}`]
     : [];
@@ -33,9 +33,13 @@ export async function runScan(url: string): Promise<ScanRecord> {
         ],
     scoreImpact: pageScore
   };
-  const signals = [...reputation.signals, ...pageSignals];
-  const score = Math.min(reputation.score + textScore + pageScore, 100);
-  const status = score >= 50 ? "unsafe" : "safe";
+  const score = Math.min(reputation.score + pageTextRisk.score + pageScore, 100);
+  const signals = [
+    ...reputation.signals,
+    ...pageTextRisk.signals,
+    ...pageSignals
+  ];
+  const status = shouldMarkUnsafe(score, signals, snapshot.captured) ? "unsafe" : "safe";
   const explanation = await explainScan({
     url: normalizedUrl,
     reputationScore: score,
@@ -51,7 +55,21 @@ export async function runScan(url: string): Promise<ScanRecord> {
     screenshot: snapshot.screenshot,
     video: snapshot.video,
     explanation,
-    evidence: [...reputation.evidence, browserEvidence],
+    evidence: [
+      ...reputation.evidence,
+      ...(pageTextRisk.signals.length > 0
+        ? [
+            {
+              source: "Page text analysis",
+              status: "flagged" as const,
+              summary: "The visible page text contains phishing-style prompts.",
+              details: pageTextRisk.signals,
+              scoreImpact: pageTextRisk.score
+            }
+          ]
+        : []),
+      browserEvidence
+    ],
     created_at: new Date().toISOString()
   });
 }
@@ -64,4 +82,78 @@ function normalizeUrl(url: string) {
   }
 
   return result.normalizedUrl;
+}
+
+function scorePageText(text: string) {
+  const lowerText = text.toLowerCase();
+  const signals: string[] = [];
+  let score = 0;
+
+  if (/\b(password|passcode|security code|verification code|otp|pin)\b/.test(lowerText)) {
+    score += 12;
+    signals.push("Page asks for sensitive account information");
+  }
+
+  if (/\b(verify your account|account locked|account suspended|unusual activity|unauthorized charge)\b/.test(lowerText)) {
+    score += 18;
+    signals.push("Page uses account-warning language");
+  }
+
+  if (/\b(urgent|immediately|final notice|expires today|act now)\b/.test(lowerText)) {
+    score += 10;
+    signals.push("Page uses urgency language");
+  }
+
+  if (/\b(bank|paypal|microsoft|apple|amazon|netflix)\b/.test(lowerText) && signals.length >= 2) {
+    score += 12;
+    signals.push("Page appears to imitate a trusted service");
+  }
+
+  return {
+    score: Math.min(score, 45),
+    signals
+  };
+}
+
+function scorePageFailure(error: string | null) {
+  if (!error) {
+    return 10;
+  }
+
+  if (/HTTP\s+(401|403|404|405|429)/i.test(error)) {
+    return 5;
+  }
+
+  if (/HTTP\s+5\d\d/i.test(error)) {
+    return 10;
+  }
+
+  return 15;
+}
+
+function shouldMarkUnsafe(score: number, signals: string[], captured: boolean) {
+  const combinedSignals = signals.join(" ").toLowerCase();
+  const threatIntelFlag = signals.some((signal) => {
+    const normalizedSignal = signal.toLowerCase();
+
+    return (
+      normalizedSignal.includes("safe browsing matched") ||
+      /virustotal .* report: [1-9]\d* malicious/.test(normalizedSignal) ||
+      /virustotal .* report: \d+ malicious, [1-9]\d* suspicious/.test(normalizedSignal)
+    );
+  });
+  const highConfidenceLocal =
+    combinedSignals.includes("typo-squatting") ||
+    combinedSignals.includes("embedded credentials") ||
+    combinedSignals.includes("imitate a trusted service");
+
+  if (threatIntelFlag) {
+    return true;
+  }
+
+  if (score >= 65) {
+    return true;
+  }
+
+  return captured && score >= 50 && highConfidenceLocal;
 }

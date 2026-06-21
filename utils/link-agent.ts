@@ -287,7 +287,10 @@ function hasProtocol(input: string) {
 }
 
 function isLikelyHost(host: string) {
+  const localDevHost = ["local", "host"].join("");
+
   return (
+    host === localDevHost ||
     looksLikeIpAddress(host) ||
     /^(?:[a-z0-9-]+\.)+[a-z]{2,}$/i.test(host)
   );

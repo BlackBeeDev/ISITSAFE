@@ -71,15 +71,26 @@ export function VerdictCard({
             <>
               <video
                 src={video}
+                autoPlay
                 controls
+                loop
                 muted
                 playsInline
+                preload="auto"
                 poster={screenshot ?? undefined}
                 className="aspect-[16/10] w-full rounded-lg border border-slate-200 object-cover object-top"
               />
               <p className="mt-2 text-xs leading-relaxed text-slate-500">
                 Recorded in an isolated browser. IsItSafe highlights risky prompts but never types or submits data.
               </p>
+              <a
+                href={video}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-flex text-xs font-semibold text-brand-700 hover:text-brand-800"
+              >
+                Open replay in a new tab
+              </a>
             </>
           ) : screenshot ? (
             // eslint-disable-next-line @next/next/no-img-element
