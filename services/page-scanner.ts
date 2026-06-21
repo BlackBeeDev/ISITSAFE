@@ -36,11 +36,20 @@ export async function scanPage(url: string): Promise<PageSnapshot> {
     try {
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 12000 });
     } catch (error) {
+      const message = error instanceof Error ? error.message : "Navigation failed";
+      // A plain timeout just means the page was slow to load (common for
+      // heavy sites on a cold serverless start) - it doesn't mean the site
+      // is actually unreachable, so only DNS/connection-level failures
+      // count as confirmed-unreachable.
+      const isConfirmedUnreachable = /net::ERR_NAME_NOT_RESOLVED|net::ERR_CONNECTION_REFUSED|net::ERR_CONNECTION_CLOSED|net::ERR_CONNECTION_RESET|net::ERR_ADDRESS_UNREACHABLE|net::ERR_INTERNET_DISCONNECTED/.test(
+        message
+      );
+
       return {
         screenshot: null,
         text: "",
-        reachable: false,
-        navigationError: error instanceof Error ? error.message : "Navigation failed"
+        reachable: isConfirmedUnreachable ? false : null,
+        navigationError: message
       };
     }
 

@@ -13,9 +13,10 @@ export async function runScan(url: string): Promise<ScanRecord> {
   ]);
 
   const textScore = snapshot.text.toLowerCase().includes("password") ? 20 : 0;
-  // A page we couldn't reach at all (DNS failure, connection refused, timeout)
-  // is unverified, not "safe" - treat it as a caution-worthy signal rather
-  // than defaulting to the clean baseline.
+  // A page we confirmed unreachable (DNS failure, connection refused) is
+  // unverified, not "safe" - treat it as a caution-worthy signal rather
+  // than defaulting to the clean baseline. A plain timeout is ambiguous
+  // (snapshot.reachable === null) and isn't penalized.
   const unreachablePenalty = snapshot.reachable === false ? 35 : 0;
   const score = Math.min(reputation.score + textScore + unreachablePenalty, 100);
   const status = score >= 50 ? "unsafe" : score >= 25 ? "caution" : "safe";
