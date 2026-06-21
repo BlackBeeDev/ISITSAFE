@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { LogIn, LogOut } from "lucide-react";
+import { LogIn, LogOut, UserRound } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 
@@ -107,15 +107,33 @@ export function AuthButton() {
   }
 
   if (user) {
-    const label =
+    const name =
       (user.user_metadata?.full_name as string | undefined) ??
       user.email ??
       "Account";
+    // Google sets the profile photo on `avatar_url` (sometimes `picture`).
+    const avatarUrl =
+      (user.user_metadata?.avatar_url as string | undefined) ??
+      (user.user_metadata?.picture as string | undefined);
     return (
       <div className="flex items-center gap-3">
-        <span className="hidden max-w-[12rem] truncate text-sm font-medium text-slate-600 sm:block">
-          {label}
-        </span>
+        {avatarUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={avatarUrl}
+            alt={name}
+            title={name}
+            referrerPolicy="no-referrer"
+            className="h-9 w-9 rounded-full border border-slate-200 object-cover"
+          />
+        ) : (
+          <span
+            title={name}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-slate-600"
+          >
+            <UserRound className="h-5 w-5" />
+          </span>
+        )}
         <button
           type="button"
           onClick={signOut}
