@@ -16,7 +16,7 @@ export function SiteNav({ active }: { active?: "how" | "what" | "about" | "plans
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
         <Link href="/" aria-label="IsItSafe home">
-          <Wordmark />
+          <Wordmark iconSize={88} />
         </Link>
         <div className="flex items-center gap-5">
           <Link href="/#how" className={linkClass("how")}>
