@@ -4,6 +4,8 @@ type ReputationResult = {
   domain: string;
 };
 
+const EXTERNAL_API_TIMEOUT_MS = 6000;
+
 async function checkSafeBrowsing(url: string): Promise<{ score: number; signals: string[] }> {
   const apiKey = process.env.GOOGLE_SAFE_BROWSING_API_KEY;
   if (!apiKey) return { score: 0, signals: [] };
@@ -27,7 +29,8 @@ async function checkSafeBrowsing(url: string): Promise<{ score: number; signals:
             threatEntryTypes: ["URL"],
             threatEntries: [{ url }]
           }
-        })
+        }),
+        signal: AbortSignal.timeout(EXTERNAL_API_TIMEOUT_MS)
       }
     );
 
@@ -52,8 +55,9 @@ async function checkVirusTotal(domain: string): Promise<{ score: number; signals
   if (!apiKey) return { score: 0, signals: [] };
 
   try {
-    const res = await fetch(`https://www.virustotal.com/api/v3/domains/${domain}`, {
-      headers: { "x-apikey": apiKey }
+    const res = await fetch(`https://www.virustotal.com/api/v3/domains/${encodeURIComponent(domain)}`, {
+      headers: { "x-apikey": apiKey },
+      signal: AbortSignal.timeout(EXTERNAL_API_TIMEOUT_MS)
     });
 
     if (!res.ok) return { score: 0, signals: [] };

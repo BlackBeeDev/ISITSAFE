@@ -1,3 +1,4 @@
+import { assertSafeToFetch } from "@/lib/url-safety";
 import type { PageSnapshot } from "@/services/types";
 
 // Vercel's serverless functions don't ship Playwright's bundled Chromium
@@ -22,6 +23,13 @@ async function launchBrowser() {
 }
 
 export async function scanPage(url: string): Promise<PageSnapshot> {
+  try {
+    await assertSafeToFetch(url);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Refused to fetch URL";
+    return { screenshot: null, text: "", reachable: null, navigationError: message };
+  }
+
   let browser;
   try {
     browser = await launchBrowser();
@@ -32,6 +40,22 @@ export async function scanPage(url: string): Promise<PageSnapshot> {
 
   try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+
+    // Re-validate every page/document navigation (not just the initial URL)
+    // so a redirect or DNS rebind can't smuggle the browser into fetching a
+    // private/internal address after the first check passes.
+    await page.route("**/*", async (route) => {
+      const request = route.request();
+      if (request.isNavigationRequest()) {
+        try {
+          await assertSafeToFetch(request.url());
+        } catch {
+          await route.abort();
+          return;
+        }
+      }
+      await route.continue();
+    });
 
     try {
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 12000 });
