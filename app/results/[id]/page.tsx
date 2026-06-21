@@ -4,10 +4,12 @@ import { Plus } from "lucide-react";
 import { ReportPanel } from "@/components/report-panel";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
+import { ShareResultButton } from "@/components/share-result-button";
 import { VerdictCard } from "@/components/verdict-card";
 import { REPORT_AUTHORITIES } from "@/services/reporting";
 import { getScanResult } from "@/services/results";
 import type { EvidenceStatus, ScanEvidence } from "@/services/types";
+import { verdictStyle } from "@/lib/verdict";
 
 export default async function ResultPage({
   params
@@ -21,6 +23,7 @@ export default async function ResultPage({
   }
 
   const isUnsafe = result.status === "unsafe";
+  const style = verdictStyle(result.score, result.status);
 
   return (
     <>
@@ -31,13 +34,21 @@ export default async function ResultPage({
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Scan result</p>
             <p className="mt-1 truncate font-mono text-sm text-slate-700">{result.url}</p>
           </div>
-          <Link
-            href="/"
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
-          >
-            <Plus className="h-4 w-4" />
-            New scan
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <ShareResultButton
+              scanId={result.id}
+              scannedUrl={result.url}
+              status={style.word}
+              score={result.score}
+            />
+            <Link
+              href="/"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+            >
+              <Plus className="h-4 w-4" />
+              New scan
+            </Link>
+          </div>
         </div>
 
         <div className="mt-6">

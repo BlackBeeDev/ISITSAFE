@@ -6,8 +6,8 @@ import { Wordmark } from "@/components/wordmark";
  * Sticky top navigation shared across pages. "Log in" is a placeholder for a
  * feature that isn't built yet.
  */
-export function SiteNav({ active }: { active?: "how" | "what" | "about" }) {
-  const linkClass = (key: "how" | "what" | "about") =>
+export function SiteNav({ active }: { active?: "how" | "what" | "about" | "plans" }) {
+  const linkClass = (key: "how" | "what" | "about" | "plans") =>
     active === key
       ? "hidden text-sm font-semibold text-brand-700 sm:block"
       : "hidden text-sm font-medium text-slate-600 hover:text-brand-700 sm:block";
@@ -27,6 +27,9 @@ export function SiteNav({ active }: { active?: "how" | "what" | "about" }) {
           </Link>
           <Link href="/about" className={linkClass("about")}>
             About us
+          </Link>
+          <Link href="/plans" className={linkClass("plans")}>
+            Plans
           </Link>
           <button
             type="button"

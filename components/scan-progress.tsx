@@ -11,7 +11,6 @@ import {
   ClipboardCheck,
   Check,
   Plus,
-  Share2,
   Flag,
   AlertTriangle,
   Monitor,
@@ -22,6 +21,7 @@ import {
 import type { ScanRecord } from "@/services/types";
 import { verdictStyle, type VerdictBand } from "@/lib/verdict";
 import { RiskGauge } from "@/components/risk-gauge";
+import { ShareResultButton } from "@/components/share-result-button";
 import { VerdictAction } from "@/components/verdict-action";
 
 type StepDef = {
@@ -323,13 +323,20 @@ export function ScanProgress({ url }: { url: string }) {
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {record ? (
-                    <Link
-                      href={`/results/${record.id}`}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-brand-700 px-3.5 py-2 text-sm font-semibold text-white hover:bg-brand-800"
-                    >
-                      <Share2 className="h-4 w-4" />
-                      Save &amp; share
-                    </Link>
+                    <>
+                      <ShareResultButton
+                        scanId={record.id}
+                        scannedUrl={record.url}
+                        status={style.word}
+                        score={record.score}
+                      />
+                      <Link
+                        href={`/results/${record.id}`}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+                      >
+                        View saved result
+                      </Link>
+                    </>
                   ) : null}
                   <button
                     type="button"
