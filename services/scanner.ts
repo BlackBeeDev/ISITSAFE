@@ -1,8 +1,8 @@
-import { randomUUID } from "crypto";
 import { explainScan } from "@/services/ai";
 import { scanPage } from "@/services/page-scanner";
 import { checkReputation } from "@/services/reputation";
 import { saveScan } from "@/services/store";
+import { encodeScanToken } from "@/services/token";
 import type { ScanRecord } from "@/services/types";
 
 export async function runScan(url: string): Promise<ScanRecord> {
@@ -23,14 +23,17 @@ export async function runScan(url: string): Promise<ScanRecord> {
     snapshot
   });
 
+  const created_at = new Date().toISOString();
+  const id = encodeScanToken({ url: normalizedUrl, score, status, explanation, created_at });
+
   return saveScan({
-    id: randomUUID(),
+    id,
     url: normalizedUrl,
     score,
     status,
     screenshot: snapshot.screenshot,
     explanation,
-    created_at: new Date().toISOString()
+    created_at
   });
 }
 

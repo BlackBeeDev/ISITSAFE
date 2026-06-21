@@ -36,6 +36,16 @@ URL). The combined score maps to a status:
 - `25-49` - caution
 - `< 25` - safe
 
+## How results work
+
+`POST /api/scan` returns the full result inline, and its `id` is actually a
+base64url token that encodes the whole result (minus the screenshot, to keep
+it short). `GET /api/result?id=...` and `/results/[id]` decode that token
+directly - no database lookup required - which is what makes results work on
+stateless serverless functions (each request can land on a different
+instance with no shared memory). Supabase, if configured, is used as a
+write-through history log but is never required for a result to resolve.
+
 ## MVP routes
 
 - `/` landing page with scan form
@@ -67,9 +77,12 @@ real reputation/AI/persistence behavior.
 
 ## Supabase table
 
+Optional - only needed for scan history. Results work without this because
+the result id itself encodes the scan (see "How results work" below).
+
 ```sql
 create table scans (
-  id uuid primary key,
+  id text primary key,
   url text not null,
   score integer not null,
   status text not null,
