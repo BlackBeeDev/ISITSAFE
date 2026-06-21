@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ISITSAFE</title>
+  <link rel="stylesheet" href="popup.css" />
+  <!-- GhostLink debug panel styles. Remove this line along with debug.css and the
+       #ghostlink-debug block/script to delete the dev-only debug feature. -->
+  <link rel="stylesheet" href="debug.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <span class="logo" aria-hidden="true">&#128123;</span>
+      <h1>ISITSAFE</h1>
+    </header>
+
+    <section id="result-card" class="result-card result-neutral">
+      <p class="result-status" id="result-status">Loading...</p>
+      <p class="result-score" id="result-score"></p>
+      <p class="result-reason" id="result-reason"></p>
+    </section>
+
+    <button type="button" id="rescan-btn" class="primary-btn">Rescan this page</button>
+
+    <section class="settings">
+      <button type="button" id="settings-toggle" class="settings-toggle" aria-expanded="false">
+        <span>API endpoint</span>
+        <span class="chevron" id="settings-chevron">&#9656;</span>
+      </button>
+      <div id="settings-panel" class="settings-panel" hidden>
+        <label for="api-base-input" class="settings-label">Base URL</label>
+        <input type="text" id="api-base-input" class="settings-input" placeholder="http://localhost:3000" />
+        <div class="settings-actions">
+          <button type="button" id="save-api-base" class="secondary-btn">Save</button>
+          <button type="button" id="reset-api-base" class="reset-link">Reset to default</button>
+        </div>
+        <p id="save-status" class="save-status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- ===== GHOSTLINK DEBUG PANEL START =====
+         Dev-only. To remove GhostLink's debug panel entirely, delete:
+           - this <section id="ghostlink-debug"> block
+           - the <link rel="stylesheet" href="debug.css" /> tag in <head>
+           - the <script src="debug.js"></script> tag below
+           - the files debug.css and debug.js
+         No other file depends on these. -->
+    <section id="ghostlink-debug" class="debug-panel">
+      <p class="debug-title">ISITSAFE Debug</p>
+      <p class="debug-hint">Updates the banner on the page only - not the result card above.</p>
+      <div class="debug-actions">
+        <button type="button" id="debug-simulate-safe" class="debug-btn debug-btn-safe">Simulate Safe</button>
+        <button type="button" id="debug-simulate-caution" class="debug-btn debug-btn-caution">Simulate Caution</button>
+        <button type="button" id="debug-simulate-unsafe" class="debug-btn debug-btn-unsafe">Simulate Unsafe</button>
+      </div>
+      <p id="debug-status" class="debug-status" aria-live="polite"></p>
+    </section>
+    <!-- ===== GHOSTLINK DEBUG PANEL END ===== -->
+  </div>
+  <script src="popup.js"></script>
+  <!-- GhostLink debug panel script. Remove this line along with the block above to delete the feature. -->
+  <script src="debug.js"></script>
+</body>
+</html>

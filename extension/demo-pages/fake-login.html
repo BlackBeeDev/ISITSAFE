@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>NorthGate Online Banking - Verify Your Account</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    background-color: #eef1f6;
+    color: #1b2330;
+  }
+  .topbar {
+    background-color: #0b3d91;
+    color: #ffffff;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .topbar .logo-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    background-color: #ffffff;
+    color: #0b3d91;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 16px;
+  }
+  .topbar .brand-name {
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.02em;
+  }
+  .alert-banner {
+    background-color: #fff3cd;
+    border-bottom: 1px solid #f0c36d;
+    color: #6b4e00;
+    text-align: center;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .container {
+    max-width: 380px;
+    margin: 40px auto;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    padding: 28px 26px;
+  }
+  .container h1 {
+    font-size: 19px;
+    margin: 0 0 6px 0;
+    color: #0b3d91;
+  }
+  .urgent {
+    color: #c0392b;
+    font-weight: 700;
+    font-size: 14px;
+    margin: 0 0 18px 0;
+  }
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #44505e;
+  }
+  input[type="text"],
+  input[type="password"] {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    border: 1px solid #c8cfd8;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  .submit-btn {
+    width: 100%;
+    background-color: #c0392b;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .submit-btn:hover {
+    background-color: #a93225;
+  }
+  .countdown {
+    text-align: center;
+    font-size: 12px;
+    color: #c0392b;
+    margin-top: 12px;
+    font-weight: 600;
+  }
+  .fine-print {
+    font-size: 10px;
+    color: #8a93a0;
+    text-align: center;
+    margin-top: 20px;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="logo-badge">NG</div>
+    <div class="brand-name">NorthGate Online Banking</div>
+  </div>
+
+  <div class="alert-banner">
+    &#9888; Unusual sign-in activity detected on your account
+  </div>
+
+  <div class="container">
+    <h1>Account Verification Required</h1>
+    <p class="urgent">Verify now to avoid temporary suspension of your account.</p>
+
+    <form onsubmit="return false;">
+      <label for="username">Username or Account Number</label>
+      <input type="text" id="username" name="username" autocomplete="off" />
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" autocomplete="off" />
+
+      <button type="submit" class="submit-btn">Verify Account Now</button>
+    </form>
+
+    <p class="countdown">Your session will expire in 04:58 - act immediately.</p>
+
+    <p class="fine-print">
+      This is a fictional demo page for local testing only. NorthGate Online Banking
+      is not a real company. No data is collected or transmitted.
+    </p>
+  </div>
+
+</body>
+</html>

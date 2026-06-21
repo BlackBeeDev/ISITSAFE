@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     }
 
     const scan = await runScan(body.url);
-    return NextResponse.json({ id: scan.id });
+    return NextResponse.json(scan);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Scan failed";
     return NextResponse.json({ error: message }, { status: 400 });
