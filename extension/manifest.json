@@ -14,7 +14,7 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*", "file://*/*"],
-      "js": ["content.js"],
+      "js": ["content.js", "sender-verify.js"],
       "run_at": "document_idle"
     }
   ]

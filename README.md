@@ -65,6 +65,29 @@ click the extension icon. It talks to the deployed API by default
 `extension-ui-test/` is a UI-only variant with simulate buttons for testing
 the banner/popup styling without a live API.
 
+### Company sender verification
+
+`extension/sender-verify.js` runs alongside the page-scanning content script
+and checks whether an email/message's sender is genuinely from your company.
+It reads the visible sender name/email (Gmail-style `[email]` attribute,
+common "from"/"sender" markup, or a `mailto:` link), then shows a badge next
+to it:
+
+- 🟢 **Verified Sender** - the address is on the approved company list
+- 🟡 **Unknown Sender** - not on the list and not from the company domain
+- 🔴 **Possible Impersonation** - a known lookalike domain, a domain that
+  contains the company name but isn't the real one, a likely misspelling of
+  the official domain, or a reply-to address that doesn't match an
+  otherwise-approved sender
+
+Clicking the badge expands a one-line explanation. The trust list
+(`MOCK_TRUST_CONFIG` in `sender-verify.js`) is mocked locally for the MVP -
+`getTrustList()` is the single function to swap for a Supabase/API call
+later, since everything downstream only depends on its
+`{ officialDomain, senders, lookalikeDomains }` shape. Demo pages for manual
+testing live in `extension/demo-pages/sender-verified.html`,
+`sender-impersonation.html`, and `sender-unknown.html`.
+
 ## Deploying
 
 ```bash
