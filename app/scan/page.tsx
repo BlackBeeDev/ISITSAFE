@@ -1,22 +1,22 @@
-import Link from "next/link";
-import { ScanForm } from "@/components/scan-form";
+import { redirect } from "next/navigation";
+import { SiteNav } from "@/components/site-nav";
+import { ScanProgress } from "@/components/scan-progress";
 
-export default function ScanPage() {
+export default function ScanPage({
+  searchParams
+}: {
+  searchParams: { url?: string };
+}) {
+  const url = typeof searchParams.url === "string" ? searchParams.url.trim() : "";
+
+  if (!url) {
+    redirect("/");
+  }
+
   return (
-    <main className="mx-auto min-h-screen max-w-3xl px-6 py-8">
-      <Link className="text-sm font-medium text-slate-600" href="/">
-        IsItSafe
-      </Link>
-      <section className="mt-20">
-        <h1 className="text-3xl font-bold tracking-normal">Scan a URL</h1>
-        <p className="mt-3 text-slate-600">
-          This MVP uses simple scoring and optional API hooks for the real scan
-          providers.
-        </p>
-        <div className="mt-8">
-          <ScanForm />
-        </div>
-      </section>
-    </main>
+    <>
+      <SiteNav />
+      <ScanProgress url={url} />
+    </>
   );
 }

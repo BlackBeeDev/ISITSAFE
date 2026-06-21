@@ -26,6 +26,12 @@
   color: #6C5CE7;
 }
 
+.debug-hint {
+  margin: 0;
+  font-size: 10px;
+  color: #6b6b6b;
+}
+
 .debug-actions {
   display: flex;
   flex-direction: column;

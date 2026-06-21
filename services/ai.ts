@@ -45,6 +45,10 @@ export async function explainScan(input: ExplanationInput) {
 }
 
 function fallbackExplanation(input: ExplanationInput) {
+  if (!input.snapshot.captured) {
+    return `Unsafe. The demo browser could not open this page: ${input.snapshot.error ?? "unknown page error"}.`;
+  }
+
   if (input.reputationScore >= 50) {
     return "Unsafe. This URL has suspicious signals and should be avoided until verified.";
   }

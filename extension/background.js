@@ -3,7 +3,7 @@
 // messages from the popup by calling the configured API and forwarding the
 // result to the tab's content script.
 
-const DEFAULT_API_BASE = "http://localhost:3000";
+const DEFAULT_API_BASE = "https://isitsafe.vercel.app";
 
 // Per-tab result cache backed by chrome.storage.session. A plain in-memory
 // Map would lose its contents whenever MV3 unloads this service worker
@@ -55,26 +55,24 @@ async function parseJsonResponse(res, apiBase) {
 }
 
 async function scanUrl(apiBase, url) {
+  // /api/scan returns the full result inline rather than just an id, since
+  // the API runs as stateless serverless functions on Vercel - a follow-up
+  // GET to /api/result can land on a different instance with no memory of
+  // the scan that was just performed.
   const scanRes = await fetch(`${apiBase}/api/scan`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ url }),
   });
   const scanBody = await parseJsonResponse(scanRes, apiBase);
-  if (!scanRes.ok || !scanBody.id) {
+  if (!scanRes.ok) {
     throw new Error(scanBody.error || "Scan request failed");
   }
 
-  const resultRes = await fetch(`${apiBase}/api/result?id=${encodeURIComponent(scanBody.id)}`);
-  const resultBody = await parseJsonResponse(resultRes, apiBase);
-  if (!resultRes.ok) {
-    throw new Error(resultBody.error || "Fetching scan result failed");
-  }
-
   return {
-    status: resultBody.status,
-    score: resultBody.score,
-    reason: resultBody.explanation || "",
+    status: scanBody.status,
+    score: scanBody.score,
+    reason: scanBody.explanation || "",
   };
 }
 
