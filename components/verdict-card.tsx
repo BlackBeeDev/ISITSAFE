@@ -20,13 +20,15 @@ export function VerdictCard({
   status,
   score,
   explanation,
-  screenshot
+  screenshot,
+  video
 }: {
   url: string;
   status: ScanStatus;
   score: number;
   explanation: string;
   screenshot: string | null;
+  video?: string | null;
 }) {
   const style = verdictStyle(score, status);
   const Icon = ICONS[style.band];
@@ -62,8 +64,24 @@ export function VerdictCard({
 
       <aside className="flex flex-col gap-5">
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Page preview</p>
-          {screenshot ? (
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+            Safe replay
+          </p>
+          {video ? (
+            <>
+              <video
+                src={video}
+                controls
+                muted
+                playsInline
+                poster={screenshot ?? undefined}
+                className="aspect-[16/10] w-full rounded-lg border border-slate-200 object-cover object-top"
+              />
+              <p className="mt-2 text-xs leading-relaxed text-slate-500">
+                Recorded in an isolated browser. IsItSafe highlights risky prompts but never types or submits data.
+              </p>
+            </>
+          ) : screenshot ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={screenshot}

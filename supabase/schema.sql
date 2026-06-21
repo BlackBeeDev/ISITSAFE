@@ -4,6 +4,7 @@ create table if not exists public.scans (
   score integer not null check (score >= 0 and score <= 100),
   status text not null check (status in ('safe', 'unsafe')),
   screenshot text,
+  video text,
   explanation text not null,
   evidence jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now()
@@ -11,6 +12,9 @@ create table if not exists public.scans (
 
 create index if not exists scans_created_at_idx
   on public.scans (created_at desc);
+
+alter table public.scans
+  add column if not exists video text;
 
 alter table public.scans enable row level security;
 

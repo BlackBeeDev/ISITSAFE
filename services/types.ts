@@ -16,6 +16,7 @@ export type ScanRecord = {
   score: number;
   status: ScanStatus;
   screenshot: string | null;
+  video: string | null;
   explanation: string;
   evidence: ScanEvidence[];
   created_at: string;
@@ -40,6 +41,7 @@ export type ForwardedEmailRecord = {
 
 export type PageSnapshot = {
   screenshot: string | null;
+  video: string | null;
   text: string;
   captured: boolean;
   error: string | null;

@@ -4,7 +4,9 @@ import type { PageSnapshot } from "@/services/types";
 
 export async function scanPage(url: string): Promise<PageSnapshot> {
   try {
-    const snapshot = await captureInChildProcess(url);
+    const snapshot = process.env.VERCEL
+      ? await captureInServerlessBrowser(url)
+      : await captureInChildProcess(url);
 
     if (!snapshot.screenshot) {
       return {
@@ -20,6 +22,7 @@ export async function scanPage(url: string): Promise<PageSnapshot> {
 
     return {
       screenshot: createFailurePreview(url, message),
+      video: null,
       text: "",
       captured: false,
       error: message
@@ -34,7 +37,7 @@ function captureInChildProcess(url: string) {
     execFile(
       process.execPath,
       [scriptPath, url],
-      { timeout: 18000, maxBuffer: 8 * 1024 * 1024 },
+      { timeout: 22000, maxBuffer: 24 * 1024 * 1024 },
       (error, stdout) => {
         if (error) {
           reject(error);
@@ -49,6 +52,128 @@ function captureInChildProcess(url: string) {
       }
     );
   });
+}
+
+async function captureInServerlessBrowser(url: string): Promise<PageSnapshot> {
+  const [{ default: chromium }, { chromium: playwrightCore }] = await Promise.all([
+    import("@sparticuz/chromium"),
+    import("playwright-core")
+  ]);
+
+  let browser;
+
+  try {
+    browser = await playwrightCore.launch({
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
+      headless: true
+    });
+
+    const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+    const response = await page.goto(url, {
+      waitUntil: "domcontentloaded",
+      timeout: 12000
+    });
+
+    await page.waitForTimeout(900).catch(() => undefined);
+    await renderServerlessOverlay(
+      page,
+      "IsItSafe safe preview",
+      "Opened in an isolated browser. Video replay is available in local demo mode."
+    );
+    await highlightServerlessRiskyElements(page);
+
+    const text = await page.locator("body").innerText({ timeout: 3000 }).catch(() => "");
+    const screenshot = await page.screenshot({ fullPage: false, type: "png" });
+
+    return {
+      captured: true,
+      screenshot: `data:image/png;base64,${screenshot.toString("base64")}`,
+      video: null,
+      text,
+      error:
+        response && response.status() >= 400
+          ? `Page returned HTTP ${response.status()}`
+          : null
+    };
+  } finally {
+    if (browser) {
+      await browser.close().catch(() => undefined);
+    }
+  }
+}
+
+async function renderServerlessOverlay(
+  page: { evaluate: (fn: (args: { title: string; body: string }) => void, args: { title: string; body: string }) => Promise<unknown> },
+  title: string,
+  body: string
+) {
+  await page
+    .evaluate(
+      ({ title, body }) => {
+        const overlay = document.createElement("div");
+        overlay.style.position = "fixed";
+        overlay.style.left = "24px";
+        overlay.style.bottom = "24px";
+        overlay.style.zIndex = "2147483647";
+        overlay.style.maxWidth = "460px";
+        overlay.style.borderRadius = "14px";
+        overlay.style.background = "rgba(15, 23, 42, 0.92)";
+        overlay.style.color = "#ffffff";
+        overlay.style.boxShadow = "0 18px 48px rgba(15, 23, 42, 0.35)";
+        overlay.style.padding = "16px 18px";
+        overlay.style.fontFamily = "Arial, sans-serif";
+        overlay.style.lineHeight = "1.45";
+
+        const heading = document.createElement("div");
+        heading.textContent = title;
+        heading.style.fontSize = "16px";
+        heading.style.fontWeight = "800";
+        heading.style.marginBottom = "4px";
+
+        const copy = document.createElement("div");
+        copy.textContent = body;
+        copy.style.fontSize = "14px";
+        copy.style.color = "#dbeafe";
+
+        overlay.appendChild(heading);
+        overlay.appendChild(copy);
+        document.documentElement.appendChild(overlay);
+      },
+      { title, body }
+    )
+    .catch(() => undefined);
+}
+
+async function highlightServerlessRiskyElements(page: {
+  evaluate: (fn: () => void) => Promise<unknown>;
+}) {
+  await page
+    .evaluate(() => {
+      const candidates = Array.from(
+        document.querySelectorAll("input, button, a, [role='button']")
+      ).slice(0, 12);
+
+      for (const el of candidates) {
+        const text = `${el.textContent || ""} ${el.getAttribute("aria-label") || ""} ${el.getAttribute("placeholder") || ""}`.toLowerCase();
+        const type = `${el.getAttribute("type") || ""}`.toLowerCase();
+        const risky =
+          type === "password" ||
+          text.includes("password") ||
+          text.includes("login") ||
+          text.includes("sign in") ||
+          text.includes("verify") ||
+          text.includes("account") ||
+          text.includes("pay");
+
+        if (risky && el instanceof HTMLElement) {
+          el.style.outline = "4px solid #ef4444";
+          el.style.outlineOffset = "3px";
+          el.style.boxShadow = "0 0 0 6px rgba(239, 68, 68, 0.18)";
+        }
+      }
+    })
+    .catch(() => undefined);
 }
 
 function createFailurePreview(url: string, message: string) {

@@ -49,6 +49,7 @@ export async function runScan(url: string): Promise<ScanRecord> {
     score,
     status,
     screenshot: snapshot.screenshot,
+    video: snapshot.video,
     explanation,
     evidence: [...reputation.evidence, browserEvidence],
     created_at: new Date().toISOString()

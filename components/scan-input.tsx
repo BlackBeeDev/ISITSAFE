@@ -5,19 +5,27 @@ import { useRouter } from "next/navigation";
 import { AlertTriangle, Image as ImageIcon, Search, ShieldCheck } from "lucide-react";
 import { inspectMessage } from "@/utils/message-agent";
 
-type Mode = "auto" | "link" | "email" | "qr";
+type Mode = "auto" | "link" | "email" | "image";
+
+type BarcodeDetectorConstructor = new (options?: { formats?: string[] }) => {
+  detect(source: ImageBitmapSource): Promise<Array<{ rawValue: string }>>;
+};
+
+type WindowWithBarcodeDetector = Window & {
+  BarcodeDetector?: BarcodeDetectorConstructor;
+};
 
 const TABS: { key: Mode; label: string }[] = [
   { key: "auto", label: "Auto-detect" },
   { key: "link", label: "Link" },
   { key: "email", label: "Email" },
-  { key: "qr", label: "QR / image" }
+  { key: "image", label: "Image" }
 ];
 
 const TYPE_LABEL: Record<Exclude<Mode, "auto">, string> = {
   link: "Link",
   email: "Email",
-  qr: "QR code"
+  image: "Image"
 };
 
 export function ScanInput() {
@@ -25,11 +33,11 @@ export function ScanInput() {
   const [mode, setMode] = useState<Mode>("auto");
   const [value, setValue] = useState("");
   const [imageName, setImageName] = useState("");
+  const [imageStatus, setImageStatus] = useState("");
   const [error, setError] = useState("");
 
   const analysis = value.trim() ? inspectMessage(value) : null;
   const detected = mode === "auto" ? getDetectedMode(analysis) : mode;
-  const comingSoon = detected === "qr" && !analysis?.normalizedUrl;
 
   function onCheck(event?: React.FormEvent<HTMLFormElement>) {
     event?.preventDefault();
@@ -39,7 +47,7 @@ export function ScanInput() {
     if (!trimmed) {
       setError(
         imageName
-          ? "Image reading is not wired yet. Paste the link or text from the image to scan it."
+          ? "No QR link was found yet. Try another QR image or paste the link text from the image."
           : "Paste a link, message, email, or screenshot text to scan it."
       );
       return;
@@ -55,12 +63,40 @@ export function ScanInput() {
     router.push(`/scan?url=${encodeURIComponent(result.normalizedUrl)}`);
   }
 
-  function onFile(event: React.ChangeEvent<HTMLInputElement>) {
+  async function onFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
 
     if (file) {
-      setMode("qr");
+      setMode("image");
       setImageName(file.name);
+      setImageStatus("Reading image for a QR link...");
+      setError("");
+
+      try {
+        const decoded = await decodeQrFromImage(file);
+
+        if (!decoded) {
+          setImageStatus("Image uploaded. No QR link was found, so paste the visible link text to scan it.");
+          return;
+        }
+
+        const inspected = inspectMessage(decoded);
+        setValue(decoded);
+
+        if (inspected.normalizedUrl) {
+          setImageStatus("QR link found. Starting scan...");
+          router.push(`/scan?url=${encodeURIComponent(inspected.normalizedUrl)}`);
+          return;
+        }
+
+        setImageStatus("QR code read, but no scannable link was found.");
+      } catch (err) {
+        setImageStatus("");
+        setError(err instanceof Error ? err.message : "Could not read this image.");
+      }
+    } else {
+      setImageName("");
+      setImageStatus("");
     }
   }
 
@@ -137,15 +173,28 @@ export function ScanInput() {
       </p>
 
       {analysis ? <InputPreview result={analysis} /> : null}
+      {imageStatus ? <p className="mt-2 text-sm font-medium text-brand-700">{imageStatus}</p> : null}
       {error ? <p className="mt-2 text-sm font-medium text-red-600">{error}</p> : null}
-      {comingSoon ? (
-        <p className="mt-2 text-sm font-medium text-amber-700">
-          Image / QR scanning is coming soon. Uploads are saved for preview only right now, so paste the link
-          text from the image to scan it.
-        </p>
-      ) : null}
     </div>
   );
+}
+
+async function decodeQrFromImage(file: File) {
+  const BarcodeDetector = (window as WindowWithBarcodeDetector).BarcodeDetector;
+
+  if (!BarcodeDetector) {
+    throw new Error("QR reading is not supported in this browser yet. Paste the QR link text to scan it.");
+  }
+
+  const bitmap = await createImageBitmap(file);
+
+  try {
+    const detector = new BarcodeDetector({ formats: ["qr_code"] });
+    const codes = await detector.detect(bitmap);
+    return codes[0]?.rawValue?.trim() || null;
+  } finally {
+    bitmap.close();
+  }
 }
 
 function getDetectedMode(result: ReturnType<typeof inspectMessage> | null): Mode | null {
@@ -158,7 +207,7 @@ function getDetectedMode(result: ReturnType<typeof inspectMessage> | null): Mode
   }
 
   if (result.inputKind === "qr-text") {
-    return "qr";
+    return "image";
   }
 
   return result.normalizedUrl ? "link" : null;

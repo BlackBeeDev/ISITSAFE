@@ -11,7 +11,6 @@ import {
   ClipboardCheck,
   Check,
   Plus,
-  Flag,
   AlertTriangle,
   Monitor,
   Smartphone,
@@ -19,7 +18,9 @@ import {
   XCircle
 } from "lucide-react";
 import type { ScanRecord } from "@/services/types";
+import { REPORT_AUTHORITIES } from "@/services/reporting";
 import { verdictStyle, type VerdictBand } from "@/lib/verdict";
+import { ReportPanel } from "@/components/report-panel";
 import { RiskGauge } from "@/components/risk-gauge";
 import { ShareResultButton } from "@/components/share-result-button";
 import { VerdictAction } from "@/components/verdict-action";
@@ -338,25 +339,34 @@ export function ScanProgress({ url }: { url: string }) {
                       </Link>
                     </>
                   ) : null}
-                  <button
-                    type="button"
-                    title="Coming soon"
-                    className="inline-flex cursor-not-allowed items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-600"
-                  >
-                    <Flag className="h-4 w-4" />
-                    Report this site
-                  </button>
                 </div>
               </>
             ) : null}
           </div>
+          {revealed && record?.status === "unsafe" ? (
+            <ReportPanel authorities={REPORT_AUTHORITIES} scanId={record.id} />
+          ) : null}
         </section>
 
         {/* RESULT preview + gauge */}
         <aside className="flex flex-col gap-5">
           <div className="rounded-2xl border border-slate-200 bg-white p-4">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Page preview</p>
-            {screenshotReady && record?.screenshot ? (
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Safe replay</p>
+            {screenshotReady && record?.video ? (
+              <>
+                <video
+                  src={record.video}
+                  controls
+                  muted
+                  playsInline
+                  poster={record.screenshot ?? undefined}
+                  className="aspect-[16/10] w-full rounded-lg border border-slate-200 object-cover object-top fade-in"
+                />
+                <p className="mt-2 text-xs leading-relaxed text-slate-500">
+                  Recorded in an isolated browser. We highlight risky prompts without typing or submitting anything.
+                </p>
+              </>
+            ) : screenshotReady && record?.screenshot ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={record.screenshot}

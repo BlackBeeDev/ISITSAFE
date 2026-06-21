@@ -58,6 +58,7 @@ export default async function ResultPage({
             score={result.score}
             explanation={result.explanation}
             screenshot={result.screenshot}
+            video={result.video}
           />
         </div>
 

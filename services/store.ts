@@ -21,10 +21,22 @@ export async function saveScan(record: ScanRecord) {
 
   const { error } = await supabase.from("scans").insert(record);
   if (error) {
-    console.error("Supabase insert failed", error);
+    if (isMissingVideoColumn(error.message)) {
+      const { video: _video, ...recordWithoutVideo } = record;
+      const retry = await supabase.from("scans").insert(recordWithoutVideo);
+      if (retry.error) {
+        console.error("Supabase insert failed", retry.error);
+      }
+    } else {
+      console.error("Supabase insert failed", error);
+    }
   }
 
   return record;
+}
+
+function isMissingVideoColumn(message: string) {
+  return /video|schema cache|column/i.test(message);
 }
 
 export async function findScan(id: string) {

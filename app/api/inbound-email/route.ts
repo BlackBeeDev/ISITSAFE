@@ -8,6 +8,9 @@ import { getResendReceivedEmail } from "@/services/resend";
 
 const SECRET_HEADER = "x-isitsafe-webhook-secret";
 
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
   try {
     if (!isAuthorized(request)) {

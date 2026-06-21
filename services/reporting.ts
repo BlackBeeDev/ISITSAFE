@@ -46,8 +46,8 @@ export async function createLinkReport(scanId: string, authorityIds: string[]) {
     throw new Error("Scan result not found");
   }
 
-  if (scan.status !== "unsafe") {
-    throw new Error("Only unsafe links can be reported");
+  if (scan.status !== "unsafe" && scan.score < 50) {
+    throw new Error("Only unsafe or high-risk links can be reported");
   }
 
   const validAuthorityIds = REPORT_AUTHORITIES.map((authority) => authority.id);
